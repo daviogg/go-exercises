@@ -12,9 +12,9 @@ type Page struct {
 	Body  []byte
 }
 
-var tmplView = template.Must(template.New("test").ParseFiles("base.html", "test.html"))
+var tmplView = template.Must(template.New("test").ParseFiles("base.html", "test.html", "index.html"))
 
-var tmplEdit = template.Must(template.New("edit").ParseFiles("base.html", "edit.html"))
+var tmplEdit = template.Must(template.New("edit").ParseFiles("base.html", "edit.html", "index.html"))
 
 //Save save the page
 func (p *Page) Save() error {
@@ -57,8 +57,9 @@ func save(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	p := &Page{Title: "Test", Body: []byte("Welcome to test page!")}
-	p.Save()
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	// p := &Page{Title: "Test", Body: []byte("Welcome to test page!")}
+	// p.Save()
 	http.HandleFunc("/test/", view)
 	http.HandleFunc("/edit/", edit)
 	http.HandleFunc("/save/", save)

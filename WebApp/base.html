@@ -1,11 +1,11 @@
 {{define "base"}}
 <html>
-
 <head>
+    {{template "header" .}}
 </head>
-
 <body>
-    {{template "main" .}}
+    {{template "navbar" .}}
+    {{template "body" .}}
 </body>
 
 </html>
