@@ -1,6 +1,6 @@
 package main
 
-//User, define an user for login
+//User define an user for login
 type User struct {
 	UUID     string
 	Fname    string
