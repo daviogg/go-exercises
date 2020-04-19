@@ -67,11 +67,13 @@ func signup(w http.ResponseWriter, r *http.Request) {
 		u := &User{}
 		render(w, "signup", u)
 	case "POST":
-		u := &User{Fname: r.FormValue("fName"),
+		u := &User{
+			UUID:     UUID(),
+			Fname:    r.FormValue("fName"),
 			Lname:    r.FormValue("lName"),
 			Email:    r.FormValue("email"),
 			Username: r.FormValue("userName"),
-			Password: r.FormValue("password"),
+			Password: encryptPass(r.FormValue("password")),
 		}
 		saveData(u)
 		http.Redirect(w, r, "/", 302)
