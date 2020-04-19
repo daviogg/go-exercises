@@ -1,4 +1,5 @@
-{{define "main"}}
+{{define "signup"}}
+{{template "header" .}}
 <h1 class="alert alert-info">Sign Up</h1>
 <div class="container">
     <form  method="POST" action="/signup">
@@ -18,4 +19,5 @@
 <div class="alert alert-info">
     <a href="/" class="alert">Sign In!</a>
 </div>
+{{template "footer" .}}
 {{end}}

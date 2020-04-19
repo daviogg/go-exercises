@@ -15,22 +15,17 @@ var cookieHandler = securecookie.New(
 var router = mux.NewRouter()
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
-	msg, _ := getMsg(w, r, "message")
-	if msg != nil {
-		tmpl, _ := template.ParseFiles("base.html", "index.html", "main.html", "flash.html")
-		err := tmpl.ExecuteTemplate(w, "base", msg)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+	msg := getMsg(w, r, "message")
+	var u = &User{}
+	u.Errors = make(map[string]string)
+	if msg != "" {
+		u.Errors["message"] = msg
+		render(w, "signin", u)
 	} else {
-
 		u := &User{}
-		tmpl, _ := template.ParseFiles("base.html", "index.html", "main.html")
-		err := tmpl.ExecuteTemplate(w, "base", u)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		render(w, "signin", u)
 	}
+
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
@@ -43,29 +38,25 @@ func login(w http.ResponseWriter, r *http.Request) {
 			setSession(u, w)
 			redirect = "/example"
 		} else {
-			setMsg(w, "message", []byte("Please SignUp!"))
+			setMsg(w, "message", "please signup or enter a valid username and password!")
 		}
 	} else {
-		setMsg(w, "message", []byte("Username or password, empty!"))
+		setMsg(w, "message", "Username or Password field are empty!")
 	}
 	http.Redirect(w, r, redirect, 302)
 }
 
 func logout(w http.ResponseWriter, r *http.Request) {
-	clearSession(w)
+	clearSession(w, "session")
 	http.Redirect(w, r, "/", 302)
 }
 
 func examplePage(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("base.html", "index.html", "internal.html")
 	username := getUserName(r)
 	if username != "" {
-		err := tmpl.ExecuteTemplate(w, "base", &User{Username: username})
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
+		render(w, "internal", &User{Username: username})
 	} else {
-		setMsg(w, "message", []byte("login first!"))
+		setMsg(w, "message", "Please login first!")
 		http.Redirect(w, r, "/", 302)
 	}
 }
@@ -73,20 +64,26 @@ func examplePage(w http.ResponseWriter, r *http.Request) {
 func signup(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		tmpl, _ := template.ParseFiles("signup.html", "index.html", "base.html")
 		u := &User{}
-		tmpl.ExecuteTemplate(w, "base", u)
+		render(w, "signup", u)
 	case "POST":
-		f := r.FormValue("fName")
-		l := r.FormValue("lName")
-		em := r.FormValue("email")
-		un := r.FormValue("userName")
-		pass := r.FormValue("password")
-
-		u := &User{Fname: f, Lname: l, Email: em, Username: un, Password: pass}
+		u := &User{Fname: r.FormValue("fName"),
+			Lname:    r.FormValue("lName"),
+			Email:    r.FormValue("email"),
+			Username: r.FormValue("userName"),
+			Password: r.FormValue("password"),
+		}
 		saveData(u)
 		http.Redirect(w, r, "/", 302)
 	}
+}
+
+func render(w http.ResponseWriter, name string, data interface{}) {
+	tmpl, err := template.ParseGlob("*.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	tmpl.ExecuteTemplate(w, name, data)
 }
 
 func main() {

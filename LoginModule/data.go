@@ -6,14 +6,15 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//User define an user for login
+//User struct define an authenticated one
 type User struct {
 	UUID     string
+	Username string
+	Password string
 	Fname    string
 	Lname    string
-	Username string
 	Email    string
-	Password string
+	Errors   map[string]string
 }
 
 func saveData(u *User) error {
