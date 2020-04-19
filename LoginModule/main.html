@@ -1,6 +1,7 @@
 {{define "main"}}
 <h1 class="alert alert-info">Login</h1>
 <div class="container">
+    {{block "flash" .}} {{end}}
     <form method="POST" action="/login">
         <label class="form-control" for="uname">User Name</label>
         <input class="form-control" type="text" id="uname" name="uname">

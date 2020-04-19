@@ -15,11 +15,21 @@ var cookieHandler = securecookie.New(
 var router = mux.NewRouter()
 
 func indexPage(w http.ResponseWriter, r *http.Request) {
-	u := &User{}
-	tmpl, _ := template.ParseFiles("base.html", "index.html", "main.html")
-	err := tmpl.ExecuteTemplate(w, "base", u)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	msg, _ := getMsg(w, r, "message")
+	if msg != nil {
+		tmpl, _ := template.ParseFiles("base.html", "index.html", "main.html", "flash.html")
+		err := tmpl.ExecuteTemplate(w, "base", msg)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	} else {
+
+		u := &User{}
+		tmpl, _ := template.ParseFiles("base.html", "index.html", "main.html")
+		err := tmpl.ExecuteTemplate(w, "base", u)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 	}
 }
 
@@ -32,7 +42,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 		if userExists(u) {
 			setSession(u, w)
 			redirect = "/example"
+		} else {
+			setMsg(w, "message", []byte("Please SignUp!"))
 		}
+	} else {
+		setMsg(w, "message", []byte("Username or password, empty!"))
 	}
 	http.Redirect(w, r, redirect, 302)
 }
@@ -50,6 +64,9 @@ func examplePage(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
+	} else {
+		setMsg(w, "message", []byte("login first!"))
+		http.Redirect(w, r, "/", 302)
 	}
 }
 
